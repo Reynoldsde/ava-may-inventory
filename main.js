@@ -1,9 +1,15 @@
+
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabaseUrl = 'https://dubmouyxleyttgkjyjkg.supabase.co';  
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Ym1vdXl4bGV5dHRna2p5amtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNzEzNTQsImV4cCI6MjA2OTg0NzM1NH0.3qmTh-HYi0LwFHOgI8MJalVNGOASdQWry_fbxvaboiI';                        // ⬅️ replace this
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+
+
+// Setup HTML UI
 document.getElementById('app').innerHTML = `
   <div class="max-w-2xl mx-auto py-10">
     <h1 class="text-2xl font-bold text-center mb-6">🛒 Sisitemu y'Ibicuruzwa - Ava May</h1>
@@ -23,27 +29,43 @@ document.getElementById('app').innerHTML = `
 
 const form = document.getElementById('productForm');
 const inventoryList = document.getElementById('inventoryList');
-let inventory = [];
 
-form.addEventListener('submit', function (e) {
+// Add product to Supabase
+form.addEventListener('submit', async function (e) {
   e.preventDefault();
   const name = document.getElementById('productName').value.trim();
   const qty = parseInt(document.getElementById('productQty').value.trim(), 10);
 
   if (!name || isNaN(qty)) return;
 
-  inventory.push({ name, qty, time: new Date().toLocaleString() });
-  renderInventory();
+  const { error } = await supabase.from('products').insert([{ name, qty }]);
+  if (error) {
+    alert('Ntibyakunze kongera igicuruzwa.');
+    return;
+  }
 
   form.reset();
+  loadInventory(); // Refresh list after adding
 });
 
-function renderInventory() {
+// Fetch inventory from Supabase
+async function loadInventory() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
   inventoryList.innerHTML = '';
-  inventory.forEach(item => {
+  if (error) {
+    inventoryList.innerHTML = '<li>Ntibyakunze kubona ibicuruzwa.</li>';
+    return;
+  }
+
+  data.forEach(item => {
     const li = document.createElement('li');
-    li.textContent = `${item.name} — ${item.qty} (yongewe: ${item.time})`;
+    li.textContent = `${item.name} — ${item.qty} (yongewe: ${new Date(item.created_at).toLocaleString()})`;
     inventoryList.appendChild(li);
   });
 }
 
+// Load data when page
