@@ -61,13 +61,30 @@ async function loadInventory() {
     return;
   }
 
-  data.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = `${item.name} — ${item.qty} (yongewe: ${new Date(item.created_at).toLocaleString()})`;
-    inventoryList.appendChild(li);
+ data.forEach(item => {
+  const li = document.createElement('li');
+  li.className = "flex items-center justify-between my-2";
+
+  li.innerHTML = `
+    <span>${item.name} — ${item.qty} <small class="text-sm text-gray-500">(${new Date(item.created_at).toLocaleString()})</small></span>
+    <button class="text-red-600 hover:underline" data-id="${item.id}">❌</button>
+  `;
+
+  // Add delete functionality
+  li.querySelector('button').addEventListener('click', async () => {
+    const { error } = await supabase.from('products').delete().eq('id', item.id);
+    if (error) {
+      alert("Ntibyakunze gukuraho igicuruzwa.");
+      return;
+    }
+    loadInventory(); // Refresh list
   });
-}
+
+  inventoryList.appendChild(li);
+});
+
 
 
 // Load data when page loads
 loadInventory();
+
