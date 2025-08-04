@@ -68,4 +68,6 @@ async function loadInventory() {
   });
 }
 
-// Load data when page
+
+// Load data when page loads
+loadInventory();
