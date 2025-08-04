@@ -1,13 +1,8 @@
-
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabaseUrl = 'https://dubmouyxleyttgkjyjkg.supabase.co';  
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Ym1vdXl4bGV5dHRna2p5amtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNzEzNTQsImV4cCI6MjA2OTg0NzM1NH0.3qmTh-HYi0LwFHOgI8MJalVNGOASdQWry_fbxvaboiI';                        // ⬅️ replace this
-
+const supabaseKey = 'your_anon_key_here'; // ⛔ Replace with new safe key!
 const supabase = createClient(supabaseUrl, supabaseKey);
-
-
-
 
 // Setup HTML UI
 document.getElementById('app').innerHTML = `
@@ -30,7 +25,7 @@ document.getElementById('app').innerHTML = `
 const form = document.getElementById('productForm');
 const inventoryList = document.getElementById('inventoryList');
 
-// Add product to Supabase
+// Add product
 form.addEventListener('submit', async function (e) {
   e.preventDefault();
   const name = document.getElementById('productName').value.trim();
@@ -45,10 +40,10 @@ form.addEventListener('submit', async function (e) {
   }
 
   form.reset();
-  loadInventory(); // Refresh list after adding
+  loadInventory(); // Refresh
 });
 
-// Fetch inventory from Supabase
+// Fetch and display products
 async function loadInventory() {
   const { data, error } = await supabase
     .from('products')
@@ -56,35 +51,34 @@ async function loadInventory() {
     .order('created_at', { ascending: false });
 
   inventoryList.innerHTML = '';
+
   if (error) {
     inventoryList.innerHTML = '<li>Ntibyakunze kubona ibicuruzwa.</li>';
     return;
   }
 
- data.forEach(item => {
-  const li = document.createElement('li');
-  li.className = "flex items-center justify-between my-2";
+  data.forEach(item => {
+    const li = document.createElement('li');
+    li.className = "flex items-center justify-between my-2";
 
-  li.innerHTML = `
-    <span>${item.name} — ${item.qty} <small class="text-sm text-gray-500">(${new Date(item.created_at).toLocaleString()})</small></span>
-    <button class="text-red-600 hover:underline" data-id="${item.id}">❌</button>
-  `;
+    li.innerHTML = `
+      <span>${item.name} — ${item.qty} <small class="text-sm text-gray-500">(${new Date(item.created_at).toLocaleString()})</small></span>
+      <button class="text-red-600 hover:underline" data-id="${item.id}">❌</button>
+    `;
 
-  // Add delete functionality
-  li.querySelector('button').addEventListener('click', async () => {
-    const { error } = await supabase.from('products').delete().eq('id', item.id);
-    if (error) {
-      alert("Ntibyakunze gukuraho igicuruzwa.");
-      return;
-    }
-    loadInventory(); // Refresh list
+    // Delete button
+    li.querySelector('button').addEventListener('click', async () => {
+      const { error } = await supabase.from('products').delete().eq('id', item.id);
+      if (error) {
+        alert("Ntibyakunze gukuraho igicuruzwa.");
+        return;
+      }
+      loadInventory(); // Refresh after delete
+    });
+
+    inventoryList.appendChild(li);
   });
+}
 
-  inventoryList.appendChild(li);
-});
-
-
-
-// Load data when page loads
+// ⏬ Run on page load
 loadInventory();
-
