@@ -1,3 +1,9 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabaseUrl = 'https://dubmouyxleyttgkjyjkg.supabase.co';  
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1Ym1vdXl4bGV5dHRna2p5amtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNzEzNTQsImV4cCI6MjA2OTg0NzM1NH0.3qmTh-HYi0LwFHOgI8MJalVNGOASdQWry_fbxvaboiI';                        // ⬅️ replace this
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 document.getElementById('app').innerHTML = `
   <div class="max-w-2xl mx-auto py-10">
     <h1 class="text-2xl font-bold text-center mb-6">🛒 Sisitemu y'Ibicuruzwa - Ava May</h1>
@@ -40,3 +46,4 @@ function renderInventory() {
     inventoryList.appendChild(li);
   });
 }
+
